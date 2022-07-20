@@ -7,16 +7,16 @@ const { promisify } = require("util");
 
 //Connect to redis
 const redisClient = redis.createClient(
-  13190,
-  "redis-13190.c301.ap-south-1-1.ec2.cloud.redislabs.com",
+    14955,
+  "redis-14955.c301.ap-south-1-1.ec2.cloud.redislabs.com",
   { no_ready_check: true }
 );
-redisClient.auth("gkiOIPkytPI3ADi14jHMSWkZEo2J5TDG", function (err) {
+redisClient.auth("qAyFTxP0xZuMzYZ9vZWX70fH6B0oUFaX", function (err) {
   if (err) throw err;
 });
 
 redisClient.on("connect", async function () {
-  console.log("Connected to Redis..");
+  console.log("Connected to sameer's_Redis..");
 });
 
 
@@ -39,7 +39,7 @@ try{
     
     shortId.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=');
     let smallId= shortId.generate(longUrl)
-    console.log(smallId)
+    //console.log(smallId)
     body.urlCode=smallId
     body.shortUrl="https://localhost:3000/" + smallId
     let data =await urlModel.create(body)
@@ -58,17 +58,17 @@ try{
     if(!shortId.isValid(code)) return res.status(400).send({status:false,message:"Pls Enter Urlcode In valid Format"})
     if(!(await urlModel.findOne({urlCode:code}))) return res.status(404).send({status:false,message:"This Code doesnot exists"})
     let url= await GET_ASYNC(`${req.params.urlCode}`)
-    
+    console.log(url);
     if(url) {
+        
         console.log(url);
-        console.log("catch");
         res.redirect(url)
       } else {
-        let profile = await urlModel.findOne({urlCode:code})//.select({longUrl:1,_id:0})
-        await SET_ASYNC(`${req.params.urlCode}`, profile.longUrl)
-        console.log(JSON.stringify(profile.longUrl));
-        console.log("catch1");
-        res.redirect(profile.longUrl);
+        let Url = await urlModel.findOne({urlCode:code})//.select({longUrl:1,_id:0})
+        await SET_ASYNC(`${req.params.urlCode}`, Url.longUrl)
+        console.log(Url.longUrl);
+        
+        res.redirect(Url.longUrl);
       }
    // res.redirect(url.longUrl)
     }
@@ -76,22 +76,11 @@ try{
         res.status(500).send({status:false,message:err.message})
     }
 }
-/*
-const fetchAuthorProfile = async function (req, res) {
-    let cahcedProfileData = await GET_ASYNC(`${req.params.authorId}`)
-    if(cahcedProfileData) {
-      res.send(cahcedProfileData)
-    } else {
-      let profile = await authorModel.findById(req.params.authorId);
-      await SET_ASYNC(`${req.params.authorId}`, JSON.stringify(profile))
-      res.send({ data: profile });
-    }
-  
-  };
+
   
 
 const notFound= function(req,res){
     res.status(404).send({status:false,message:"Route not found"})
 }
-*/
-module.exports={createUrl,getUrl}
+
+module.exports={createUrl,getUrl,notFound}
