@@ -38,7 +38,7 @@ try{
     if(await urlModel.findOne({longUrl:longUrl})) return res.status(400).send({status:false,message:`${longUrl} is already exists`})
     
     shortId.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=');
-    let smallId= shortId.generate()
+    let smallId= shortId.generate(longUrl)
     console.log(smallId)
     body.urlCode=smallId
     body.shortUrl="https://localhost:3000/" + smallId
@@ -62,10 +62,10 @@ try{
     if(url) {
         console.log(url);
         console.log("catch");
-        res.redirect(decodeURIComponent(url))
+        res.redirect(url)
       } else {
         let profile = await urlModel.findOne({urlCode:code})//.select({longUrl:1,_id:0})
-        await SET_ASYNC(`${req.params.urlCode}`, JSON.stringify(profile.longUrl))
+        await SET_ASYNC(`${req.params.urlCode}`, profile.longUrl)
         console.log(JSON.stringify(profile.longUrl));
         console.log("catch1");
         res.redirect(profile.longUrl);
