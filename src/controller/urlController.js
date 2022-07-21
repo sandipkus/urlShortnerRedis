@@ -35,8 +35,17 @@ try{
     if(!("longUrl" in body)) return res.status(400).send({status:false,message:"LongUrl Is required"})
     if(!isValid(longUrl)) return res.status(400).send({status:false,message:"LongUrl Should not be empty"})
     if(!isValidUrl(longUrl)) return res.status(400).send({status:false,message:`"${longUrl}" is not a Valid url`}) 
-    if(await urlModel.findOne({longUrl:longUrl})) return res.status(400).send({status:false,message:`${longUrl} is already exists`})
-    
+    // if(await urlModel.findOne({longUrl:longUrl})) return res.status(400).send({status:false,message:`${longUrl} is already exists`})
+    let urlFromCache=await GET_ASYNC(longUrl)
+    if(urlFromCache){ 
+      urlFromCache=JSON.parse(urlFromCache)
+      return res.status(400).send(urlFromCache)}
+    else{
+      let data=await urlModel.findOne({longUrl:longUrl})
+      if(data) return res.status(200).send()
+    }
+
+
     shortId.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_=');
     let smallId= shortId.generate(longUrl)
     //console.log(smallId)
@@ -44,6 +53,7 @@ try{
     body.shortUrl="https://localhost:3000/" + smallId
     let data =await urlModel.create(body)
     let selecteddata= {longUrl:data.longUrl,shortUrl:data.shortUrl,urlCode:data.urlCode}
+    await SET_ASYNC(`${longUrl}`, JSON.stringify(selecteddata))
     res.status(201).send({status:true,message:"Done",data:selecteddata})
 }
 catch (err){
@@ -67,7 +77,6 @@ try{
         let Url = await urlModel.findOne({urlCode:code})//.select({longUrl:1,_id:0})
         await SET_ASYNC(`${req.params.urlCode}`, Url.longUrl)
         console.log(Url.longUrl);
-        
         res.redirect(Url.longUrl);
       }
    // res.redirect(url.longUrl)
