@@ -6,7 +6,6 @@ const app= express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 
-
 mongoose.connect("mongodb+srv://Sameer_Bajaj:sameerpriyanka@cluster0.qemwb.mongodb.net/group2Database",{
     useNewUrlParser:true
 })
@@ -15,7 +14,7 @@ mongoose.connect("mongodb+srv://Sameer_Bajaj:sameerpriyanka@cluster0.qemwb.mongo
 
 app.use('/', route);
 
-
 app.listen(process.env.PORT || 3000, function () {
     console.log('Express app running on port ' + (process.env.PORT || 3000))
 });
+

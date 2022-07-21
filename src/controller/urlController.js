@@ -19,12 +19,8 @@ redisClient.on("connect", async function () {
   console.log("Connected to sameer's_Redis..");
 });
 
-
-
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
-
-
 
 const createUrl = async function (req, res) {
   try {
@@ -64,19 +60,17 @@ const getUrl = async function (req, res) {
   try {
     let code = req.params.urlCode
     if (!shortId.isValid(code)) return res.status(400).send({ status: false, message: "Pls Enter Urlcode In valid Format" })
-    if (!(await urlModel.findOne({ urlCode: code }))) return res.status(404).send({ status: false, message: "This Code doesnot exists" })
     let url = await GET_ASYNC(`${req.params.urlCode}`)
-    console.log(url);
     if (url) {
       console.log(url);
       res.redirect(url)
     } else {
       let Url = await urlModel.findOne({ urlCode: code })
+      if(!Url)return res.status(404).send({ status: false, message: "This Code doesnot exists" })
       await SET_ASYNC(`${req.params.urlCode}`, Url.longUrl)
       console.log(Url.longUrl);
       res.redirect(Url.longUrl);
     }
-    // res.redirect(url.longUrl)
   }
   catch (err) {
     res.status(500).send({ status: false, message: err.message })
